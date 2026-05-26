@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoMarket - Интернет-магазин</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f0f2f5;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0f2027, #203a43);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+        }
+
+        .cart-btn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: #ff6a3d;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            z-index: 100;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: none;
+        }
+
+        .cart-btn:hover {
+            transform: scale(1.05);
+            background: #e85d32;
+        }
+
+        .categories {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 30px 20px 0;
+        }
+
+        .cat-btn {
+            background: linear-gradient(135deg, #2c3e50, #1a2a36);
+            border: none;
+            padding: 12px 28px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            color: white;
+        }
+
+        .cat-btn.active {
+            background: linear-gradient(135deg, #ff6a3d, #e85d32);
+            box-shadow: 0 6px 18px rgba(255, 106, 61, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .cat-btn:hover {
+            transform: translateY(-3px);
+            background: linear-gradient(135deg, #ff6a3d, #e85d32);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin: 30px 0 20px;
+            color: #2c3e50;
+            border-left: 5px solid #ff6a3d;
+            padding-left: 15px;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            transition: 0.2s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+        }
+
+        .product-emoji {
+            font-size: 60px;
+            background: #f8f9fa;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+        }
+
+        .product-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .product-price {
+            color: #ff6a3d;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        button {
+            background: #2c3e50;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            margin: 5px;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #ff6a3d;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 25px;
+            padding: 25px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .total {
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-align: right;
+            margin: 15px 0;
+            padding-top: 10px;
+        }
+
+        .review {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 15px;
+            margin: 10px 0;
+        }
+
+        .toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #27ae60;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 40px;
+            z-index: 300;
+            display: none;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            background: #2c3e50;
+            color: white;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>✨ NeoMarket</h1>
+    <p>Более 50 товаров для техники, работы и развлечений</p>
+</div>
+
+<div class="categories" id="categoriesNav">
+    <button class="cat-btn active" data-cat="all">📱 Все товары</button>
+    <button class="cat-btn" data-cat="electronics">📺 Электроника</button>
+    <button class="cat-btn" data-cat="computers">💻 Компьютеры</button>
+    <button class="cat-btn" data-cat="audio">🎧 Аудио</button>
+    <button class="cat-btn" data-cat="accessories">👜 Аксессуары</button>
+    <button class="cat-btn" data-cat="games">🎮 Игры</button>
+    <button class="cat-btn" data-cat="home">🏠 Для дома</button>
+    <button class="cat-btn" data-cat="sport">🏃 Спорт</button>
+</div>
+
+<div class="cart-btn" id="cartBtn">
+    🛒 Корзина (<span id="cartCount">0</span>)
+</div>
+
+<div class="container">
+    <div id="productsContainer"></div>
+</div>
+
+<!-- Модалки -->
+<div id="cartModal" class="modal">
+    <div class="modal-content">
+        <h2>🛍️ Корзина</h2>
+        <div id="cartItemsList"></div>
+        <div class="total" id="totalAmount"></div>
+        <button id="orderBtn" style="background:#27ae60; width:100%;">📦 Оформить заказ</button>
+        <button id="clearCartBtn" style="background:#95a5a6; width:100%; margin-top:10px;">🗑 Очистить</button>
+        <button id="closeModalBtn" style="background:#7f8c8d; width:100%; margin-top:10px;">❌ Закрыть</button>
+    </div>
+</div>
+
+<div id="orderModal" class="modal">
+    <div class="modal-content">
+        <h2>📝 Оформление заказа</h2>
+        <div class="form-group">
+            <input type="text" id="userName" placeholder="Ваше имя *">
+        </div>
+        <div class="form-group">
+            <input type="tel" id="userPhone" placeholder="Телефон *">
+        </div>
+        <div class="form-group">
+            <textarea id="userAddress" rows="2" placeholder="Адрес доставки *"></textarea>
+        </div>
+        <div class="form-group">
+            <textarea id="userComment" rows="2" placeholder="Комментарий"></textarea>
+        </div>
+        <button id="submitOrderBtn" style="background:#27ae60; width:100%;">✅ Подтвердить</button>
+        <button id="closeOrderBtn" style="background:#95a5a6; width:100%; margin-top:10px;">❌ Отмена</button>
+    </div>
+</div>
+
+<div id="productModal" class="modal">
+    <div class="modal-content">
+        <div id="productInfo"></div>
+        <button id="closeProductBtn" style="width:100%;">Закрыть</button>
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<footer>
+    <p>© NeoMarket — интернет-магазин | Доставка по всей стране</p>
+</footer>
+
+<script>
+    // ========== ТОВАРЫ (50+ штук) ==========
+    const products = [
+        // Электроника (10)
+        { id: 1, name: "Смартфон Galaxy S24", price: 79990, emoji: "📱", category: "electronics", desc: "Флагман с ИИ, 200МП камера, память: 256 гб", reviews: ["Лучший!", "Батарея топ."] },
+        { id: 2, name: "iPhone 15 Pro Max", price: 109990, emoji: "📱", category: "electronics", desc: "Титан, A17 Pro", reviews: ["Мечта!", "Дорого но круто."] },
+        { id: 3, name: "Телевизор 65\" 4K OLED", price: 89990, emoji: "📺", category: "electronics", desc: "OLED, 120Гц", reviews: ["Картинка бомба!", "Звук отличный."] },
+        { id: 4, name: "Планшет iPad Pro", price: 89990, emoji: "📟", category: "electronics", desc: "12.9\", M2 чип", reviews: ["Заменил ноут", "Экран супер."] },
+        { id: 5, name: "Умные часы Watch Ultra", price: 45990, emoji: "⌚", category: "electronics", desc: "Для экстрима, GPS", reviews: ["Прочные", "Долго работают."] },
+        { id: 6, name: "Фитнес-браслет Band 9", price: 3990, emoji: "⌚", category: "electronics", desc: "Сон, пульс, шаги", reviews: ["Дешёво", "Норм."] },
+        { id: 7, name: "Электронная книга", price: 15990, emoji: "📖", category: "electronics", desc: "E-Ink, подсветка", reviews: ["Глаза не устают", "Батарея месяц."] },
+        { id: 8, name: "Робот-пылесос", price: 24990, emoji: "🤖", category: "electronics", desc: "Лазер, влажная уборка", reviews: ["Чистота без рук", "Умный."] },
+        { id: 9, name: "Дрон с камерой 4K", price: 34990, emoji: "🚁", category: "electronics", desc: "GPS, 30мин полёта", reviews: ["Классно!", "Качество отл."] },
+        { id: 10, name: "Сетевое хранилище NAS", price: 19990, emoji: "💾", category: "electronics", desc: "2 отсека", reviews: ["Удобно", "Надёжный."] },
+        
+        // Компьютеры (10)
+        { id: 11, name: "Ноутбук для работы", price: 49990, emoji: "💻", category: "computers", desc: "i5, 16GB, 512GB", reviews: ["Рабочий", "Тихий."] },
+        { id: 12, name: "Игровой ноутбук", price: 119990, emoji: "💻", category: "computers", desc: "i9, RTX 4080", reviews: ["Тянет всё", "Греется."] },
+        { id: 13, name: "Моноблок", price: 59990, emoji: "🖥️", category: "computers", desc: "24\", Windows 11", reviews: ["Компактный", "Для школы."] },
+        { id: 14, name: "Игровой ПК", price: 89990, emoji: "🖥️", category: "computers", desc: "Ryzen 5, RTX 4060", reviews: ["Игры летают", "Собрали быстро."] },
+        { id: 15, name: "Внешний SSD 1TB", price: 8490, emoji: "💾", category: "computers", desc: "2000 МБ/с", reviews: ["Очень быстрый", "Маленький."] },
+        { id: 16, name: "Внешний HDD 4TB", price: 10990, emoji: "💾", category: "computers", desc: "Для бэкапов", reviews: ["Надёжный", "Тихий."] },
+        { id: 17, name: "Оперативка 32GB", price: 8990, emoji: "🧠", category: "computers", desc: "DDR5", reviews: ["ПК быстрее", "Стабильно."] },
+        { id: 18, name: "Видеокарта RTX 4070", price: 59990, emoji: "🎮", category: "computers", desc: "12GB", reviews: ["Тяжелая", "Цена кусается."] },
+        { id: 19, name: "Процессор Intel i7", price: 28990, emoji: "⚙️", category: "computers", desc: "14 поколение", reviews: ["Мощный", "Норм греется."] },
+        { id: 20, name: "Материнская плата", price: 15990, emoji: "🔧", category: "computers", desc: "DDR5, PCIe 5.0", reviews: ["Качественная", "Легко ставить."] },
+        
+        // Аудио (8)
+        { id: 21, name: "Наушники TWS Pro", price: 6990, emoji: "🎧", category: "audio", desc: "Шумодав, 40ч", reviews: ["Звук шикарный", "Кейс прикольный."] },
+        { id: 22, name: "Наушники полноразмерные", price: 8990, emoji: "🎧", category: "audio", desc: "Кожаные", reviews: ["Удобные", "Басс мощный."] },
+        { id: 23, name: "Колонка портативная", price: 4990, emoji: "🔊", category: "audio", desc: "IPX7, 24ч", reviews: ["Громкая", "На пляж."] },
+        { id: 24, name: "Колонка с Алисой", price: 5990, emoji: "🔊", category: "audio", desc: "Управление голосом", reviews: ["Умный дом", "Музыка норм."] },
+        { id: 25, name: "Микрофон USB", price: 7990, emoji: "🎙️", category: "audio", desc: "Для стримов", reviews: ["Голос чистый", "Удобный."] },
+        { id: 26, name: "Звуковая карта", price: 3990, emoji: "🎵", category: "audio", desc: "USB", reviews: ["Работает", "Дёшево."] },
+        { id: 27, name: "Музыкальный центр", price: 12990, emoji: "🎵", category: "audio", desc: "CD, USB, 80W", reviews: ["Как в 90х", "Мощный."] },
+        { id: 28, name: "Сабвуфер", price: 8990, emoji: "🔊", category: "audio", desc: "100W", reviews: ["Соседи ругаются", "Бьёт отлично."] },
+        
+        // Аксессуары (10)
+        { id: 29, name: "Клавиатура мех.", price: 5990, emoji: "⌨️", category: "accessories", desc: "RGB, красные", reviews: ["Печатать кайф", "Красивая."] },
+        { id: 30, name: "Мышь игровая", price: 4490, emoji: "🖱️", category: "accessories", desc: "26000 DPI", reviews: ["Точность", "Рука не устаёт."] },
+        { id: 31, name: "Коврик для мыши", price: 1490, emoji: "🧩", category: "accessories", desc: "900x400", reviews: ["Огромный", "Качество топ."] },
+        { id: 32, name: "Подставка для ноутбука", price: 1990, emoji: "📚", category: "accessories", desc: "Алюминий", reviews: ["Шея не болит", "Компактная."] },
+        { id: 33, name: "Чехол для телефона", price: 990, emoji: "📱", category: "accessories", desc: "Прозрачный", reviews: ["Крепкий", "Не желтеет."] },
+        { id: 34, name: "Защитное стекло", price: 590, emoji: "🛡️", category: "accessories", desc: "9H", reviews: ["Легко клеить", "Не бликует."] },
+        { id: 35, name: "Пауэрбанк 20000", price: 2990, emoji: "🔋", category: "accessories", desc: "Быстрая зарядка", reviews: ["На неделю", "Качественный."] },
+        { id: 36, name: "Зарядка 65W GaN", price: 1990, emoji: "⚡", category: "accessories", desc: "Для ноутбука", reviews: ["Маленький", "Мощный."] },
+        { id: 37, name: "Сумка для ноутбука", price: 2490, emoji: "🎒", category: "accessories", desc: "14\"", reviews: ["Стильная", "Защищает."] },
+        { id: 38, name: "Органайзер для проводов", price: 790, emoji: "📦", category: "accessories", desc: "Силикон", reviews: ["Порядок", "Полезно."] },
+        
+        // Игры (6)
+        { id: 39, name: "Геймпад Xbox", price: 4990, emoji: "🎮", category: "games", desc: "Беспроводной", reviews: ["Лучший геймпад", "Удобный."] },
+        { id: 40, name: "Игровое кресло", price: 19990, emoji: "🪑", category: "games", desc: "Массаж", reviews: ["Спина не болит", "Красивое."] },
+        { id: 41, name: "VR шлем Meta Quest 3", price: 49990, emoji: "🥽", category: "games", desc: "512GB, смешанная реальность", reviews: ["Восторг!", "Не реально."] },
+        { id: 42, name: "Руль для гонок", price: 12990, emoji: "🏎️", category: "games", desc: "Педали", reviews: ["Как в жизни", "Качественный."] },
+        { id: 43, name: "Игровая приставка", price: 35990, emoji: "🎮", category: "games", desc: "4K, 1TB", reviews: ["Дети счастливы", "Отличная."] },
+        
+        // Для дома (6)
+        { id: 44, name: "Умная колонка", price: 3990, emoji: "🔊", category: "home", desc: "Голосовой помощник", reviews: ["Умная", "Будильник."] },
+        { id: 45, name: "Умная лампочка RGB", price: 890, emoji: "💡", category: "home", desc: "1600 цветов", reviews: ["Атмосфера", "Яркая."] },
+        { id: 46, name: "Метеостанция", price: 2990, emoji: "🌡️", category: "home", desc: "Влажность", reviews: ["Удобно", "Точно."] },
+        { id: 47, name: "Электрочайник", price: 1990, emoji: "☕", category: "home", desc: "1.7L", reviews: ["Красивый", "Быстрый."] },
+        { id: 48, name: "Воздухоочиститель", price: 8990, emoji: "🌬️", category: "home", desc: "HEPA", reviews: ["Аллергии нет", "Тихий."] },
+        
+        // Спорт (4)
+        { id: 49, name: "Спорт часы", price: 12990, emoji: "⌚", category: "sport", desc: "GPS, пульс", reviews: ["Для бега", "Лёгкие."] },
+        { id: 50, name: "Беговая дорожка", price: 39990, emoji: "🏃", category: "sport", desc: "Складная", reviews: ["Домашний спорт", "Тихо."] }
+    ];
+
+    let cart = [];
+    let currentCategory = "all";
+
+    // Уведомления
+    function showMessage(text) {
+        let toast = document.getElementById('toast');
+        toast.textContent = text;
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 1500);
+    }
+
+    // Корзина
+    function saveCart() {
+        localStorage.setItem('neomarket_cart', JSON.stringify(cart));
+        updateCartCount();
+    }
+
+    function loadCart() {
+        let saved = localStorage.getItem('neomarket_cart');
+        if (saved) cart = JSON.parse(saved);
+        updateCartCount();
+    }
+
+    function updateCartCount() {
+        let count = cart.reduce((sum, item) => sum + item.quantity, 0);
+        document.getElementById('cartCount').innerText = count;
+    }
+
+    function addToCart(product) {
+        let existing = cart.find(item => item.id === product.id);
+        if (existing) {
+            existing.quantity++;
+        } else {
+            cart.push({ id: product.id, name: product.name, price: product.price, quantity: 1 });
+        }
+        saveCart();
+        showMessage(`✅ ${product.name} добавлен в корзину`);
+    }
+
+    window.removeFromCart = function(index) {
+        cart.splice(index, 1);
+        saveCart();
+        showCart();
+    };
+
+    function clearCart() {
+        if (cart.length === 0) return;
+        cart = [];
+        saveCart();
+        showCart();
+        showMessage('Корзина очищена');
+    }
+
+    function showCart() {
+        let modal = document.getElementById('cartModal');
+        let itemsDiv = document.getElementById('cartItemsList');
+        let totalDiv = document.getElementById('totalAmount');
+        
+        if (cart.length === 0) {
+            itemsDiv.innerHTML = '<p style="text-align:center; padding:20px;">Корзина пуста 🛒</p>';
+            totalDiv.innerText = '0 ₽';
+        } else {
+            let total = 0;
+            itemsDiv.innerHTML = '';
+            cart.forEach((item, idx) => {
+                let itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                itemsDiv.innerHTML += `
+                    <div class="cart-item">
+                        <span><strong>${item.name}</strong> x${item.quantity}</span>
+                        <span>${itemTotal.toLocaleString()} ₽ 
+                            <button onclick="removeFromCart(${idx})" style="background:#e74c3c; padding:5px 12px;">🗑️</button>
+                        </span>
+                    </div>
+                `;
+            });
+            totalDiv.innerText = total.toLocaleString() + ' ₽';
+        }
+        modal.classList.add('active');
+    }
+
+    // Оформление заказа
+    function showOrderForm() {
+        if (cart.length === 0) {
+            showMessage('Корзина пуста! Добавьте товары');
+            return;
+        }
+        document.getElementById('cartModal').classList.remove('active');
+        document.getElementById('orderModal').classList.add('active');
+    }
+
+    function submitOrder() {
+        let name = document.getElementById('userName').value.trim();
+        let phone = document.getElementById('userPhone').value.trim();
+        let address = document.getElementById('userAddress').value.trim();
+        
+        if (!name || !phone || !address) {
+            showMessage('Заполните имя, телефон и адрес!');
+            return;
+        }
+        
+        let total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        let itemsList = cart.map(item => `${item.name} x${item.quantity}`).join(', ');
+        
+        alert(`✅ ЗАКАЗ ОФОРМЛЕН!\n\nПолучатель: ${name}\nТелефон: ${phone}\nАдрес: ${address}\n\nТовары: ${itemsList}\nИтого: ${total.toLocaleString()} ₽\n\nСкоро с вами свяжутся.`);
+        
+        cart = [];
+        saveCart();
+        document.getElementById('orderModal').classList.remove('active');
+        document.getElementById('userName').value = '';
+        document.getElementById('userPhone').value = '';
+        document.getElementById('userAddress').value = '';
+        document.getElementById('userComment').value = '';
+        showMessage('🎉 Заказ оформлен! Спасибо!');
+    }
+
+    // Карточка товара
+    function showProduct(product) {
+        let modal = document.getElementById('productModal');
+        let infoDiv = document.getElementById('productInfo');
+        let reviewsHtml = '<strong>⭐ Отзывы:</strong>';
+        product.reviews.forEach(r => { reviewsHtml += `<div class="review">🗣️ ${r}</div>`; });
+        
+        infoDiv.innerHTML = `
+            <div style="text-align:center">
+                <div style="font-size:70px; margin:15px">${product.emoji}</div>
+                <h2>${product.name}</h2>
+                <div style="font-size:28px; color:#ff6a3d; margin:10px">${product.price.toLocaleString()} ₽</div>
+                <p style="margin:15px; color:#555">${product.desc}</p>
+                ${reviewsHtml}
+                <button onclick="addToCart(products.find(p => p.id === ${product.id}))" style="margin-top:15px;">🛒 В корзину</button>
+            </div>
+        `;
+        modal.classList.add('active');
+    }
+
+    // Отображение товаров
+    function renderProducts() {
+        let container = document.getElementById('productsContainer');
+        let filtered = currentCategory === "all" ? products : products.filter(p => p.category === currentCategory);
+        
+        let titles = {
+            'all': '📋 Все товары',
+            'electronics': '📺 Электроника',
+            'computers': '💻 Компьютеры',
+            'audio': '🎧 Аудиотехника',
+            'accessories': '👜 Аксессуары',
+            'games': '🎮 Игры',
+            'home': '🏠 Для дома',
+            'sport': '🏃 Спорт'
+        };
+        
+        container.innerHTML = `<div class="section-title">${titles[currentCategory]}</div><div class="products-grid" id="productsGrid"></div>`;
+        
+        let grid = document.getElementById('productsGrid');
+        grid.innerHTML = '';
+        
+        filtered.forEach(product => {
+            let card = document.createElement('div');
+            card.className = 'product-card';
+            card.innerHTML = `
+                <div class="product-emoji">${product.emoji}</div>
+                <div class="product-title">${product.name}</div>
+                <div class="product-price">${product.price.toLocaleString()} ₽</div>
+                <button class="view-btn">📖 Подробнее</button>
+                <button class="add-btn">🛒 В корзину</button>
+            `;
+            card.querySelector('.view-btn').onclick = () => showProduct(product);
+            card.querySelector('.add-btn').onclick = () => addToCart(product);
+            grid.appendChild(card);
+        });
+    }
+
+    // Категории
+    function initCategories() {
+        let btns = document.querySelectorAll('.cat-btn');
+        btns.forEach(btn => {
+            btn.onclick = () => {
+                btns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCategory = btn.getAttribute('data-cat');
+                renderProducts();
+            };
+        });
+    }
+
+    // Модалки
+    function initModals() {
+        document.getElementById('cartBtn').onclick = showCart;
+        document.getElementById('closeModalBtn').onclick = () => document.getElementById('cartModal').classList.remove('active');
+        document.getElementById('clearCartBtn').onclick = clearCart;
+        document.getElementById('orderBtn').onclick = showOrderForm;
+        document.getElementById('closeOrderBtn').onclick = () => document.getElementById('orderModal').classList.remove('active');
+        document.getElementById('submitOrderBtn').onclick = submitOrder;
+        document.getElementById('closeProductBtn').onclick = () => document.getElementById('productModal').classList.remove('active');
+        
+        window.onclick = (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+            }
+        };
+    }
+
+    // Запуск
+    loadCart();
+    renderProducts();
+    initCategories();
+    initModals();
+</script>
+</body>
+</html>
